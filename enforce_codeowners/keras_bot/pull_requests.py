@@ -31,21 +31,22 @@ def parse_codeowners():
 
 def send_message(pull_request, owner, files_changed):
     message = """Hello, I'm a bot! I can make mistakes, notify gabrieldemarmiesse if I made one.
-    
-    I see that you modified the following file{plural}: 
-    {files_changed}
-    
-    The owner of those file is @{owner} .
-    
-    @{owner} could you please take a look at it whenever 
-    you have the time and add a review? Thank you in advance for the help.
-    """
+
+I see that you modified the following file{plural}: 
+{files_changed}
+
+The owner of those file is @{owner}
+
+@{owner} could you please take a look at it whenever 
+you have the time and add a review? Thank you in advance for the help.
+"""
 
     files_changed_formatted = '\n'.join('* ' + x for x in files_changed)
     plural = 's' if len(files_changed) > 1 else ''
     message = message.format(files_changed=files_changed_formatted,
                              owner=owner,
                              plural=plural)
+    print('Would send message:\n')
     print(message)
 
 
@@ -59,7 +60,6 @@ def already_notified_owner(pull_request):
 
 
 def examine_single_pull_request(pull_request, map_path_owner):
-    print('Processing', pull_request.title)
     if 'adam' in pull_request.title:
         pass
     owners_to_notify = []
