@@ -60,11 +60,13 @@ def already_notified_owner(pull_request):
 
 def examine_single_pull_request(pull_request, map_path_owner):
     print('Processing', pull_request.title)
+    if 'adam' in pull_request.title:
+        pass
     owners_to_notify = []
     for file_changed in pull_request.get_files():
         for file_owned, owner in map_path_owner:
-            if file_changed == file_owned and owner != pull_request.user.login:
-                owners_to_notify.append((file_changed, owner))
+            if file_changed.filename == file_owned and owner != pull_request.user.login:
+                owners_to_notify.append((file_changed.filename, owner))
 
     if len(set(x[1] for x in owners_to_notify)) > 1:
         # let's not notify multiple people, otherwise it's going to turn into
