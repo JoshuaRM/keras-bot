@@ -92,4 +92,5 @@ def examine_pull_requests():
         examine_single_pull_request(pull_request, map_path_owner)
 
 
-examine_pull_requests()
+if __name__ == '__main__':
+    examine_pull_requests()
