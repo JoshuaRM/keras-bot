@@ -1,0 +1,27 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: python
+    steps:
+      - checkout
+      - run:
+          command: |
+            cd enforce_codeowners
+            docker build . -t dodo
+            docker run dodo
+
+workflows:
+   version: 2
+   nightly:
+     triggers:
+       - schedule:
+           cron: "0 * * * *"
+           filters:
+             branches:
+               only:
+                 - master
+     jobs:
+       - test
+   testing:
+     - test
