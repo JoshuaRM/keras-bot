@@ -46,8 +46,9 @@ you have the time and add a review? Thank you in advance for the help.
     message = message.format(files_changed=files_changed_formatted,
                              owner=owner,
                              plural=plural)
-    print('Would send message:\n')
+    print(f'Would send message to PR {pull_request.title}:\n')
     print(message)
+    print('-----------------------------------------------------')
 
 
 def already_notified_owner(pull_request):
