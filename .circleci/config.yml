@@ -2,11 +2,9 @@ version: 2
 jobs:
   build:
     docker:
-      - image: python
+      - image: docker:17.05.0-ce-git
     steps:
       - checkout
-      - run:
-          command: |
-            cd enforce_codeowners
-            docker build . -t dodo
-            docker run dodo
+      - setup_remote_docker
+      - run: cd enforce_codeowners && docker build . -t dodo
+      - run: docker run dodo
