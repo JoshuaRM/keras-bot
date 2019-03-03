@@ -7,4 +7,4 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: cd enforce_codeowners && docker build . -t dodo
-      - run: docker run dodo
+      - run: docker run -e GITHUB_TOKEN=$GITHUB_TOKEN dodo
