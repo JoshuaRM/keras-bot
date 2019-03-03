@@ -8,3 +8,17 @@ jobs:
       - setup_remote_docker
       - run: cd enforce_codeowners && docker build . -t dodo
       - run: docker run -e GITHUB_TOKEN=$GITHUB_TOKEN dodo
+
+
+workflows:
+   version: 2
+   nightly:
+     triggers:
+       - schedule:
+           cron: "0 * * * *"
+           filters:
+             branches:
+               only:
+                 - master
+     jobs:
+       - build
