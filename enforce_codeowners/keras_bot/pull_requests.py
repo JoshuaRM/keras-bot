@@ -41,22 +41,27 @@ The owner of those file is @{owner}
 you have the time and add a review? Thank you in advance for the help.
 """
 
-    files_changed_formatted = '\n'.join('* ' + x for x in files_changed)
+    files_changed_formatted = '\n'.join(f'* `{x}`' for x in files_changed)
     plural = 's' if len(files_changed) > 1 else ''
     message = message.format(files_changed=files_changed_formatted,
                              owner=owner,
                              plural=plural)
+
     print(f'Would send message to PR {pull_request.title}:\n')
     print(message)
     print('-----------------------------------------------------')
-
+    if os.environ.get('DRY_RUN', '1') == '0':
+        pull_request.create_issue_comment(message)
+        print('Sent.')
 
 def already_notified_owner(pull_request):
-    for comment in pull_request.get_comments():
+    for comment in pull_request.get_issue_comments():
         if comment.user.login != 'bot-of-gabrieldemarmiesse':
             continue
         if 'owner' in comment.body and 'review' in comment.body:
+            print(f'Already notified owner in {pull_request.title}')
             return True
+
     return False
 
 
