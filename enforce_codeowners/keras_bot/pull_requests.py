@@ -2,6 +2,10 @@ import os
 
 import github
 
+import importTester
+
+import shutil
+
 codeowners_url = ('https://raw.githubusercontent.com/'
                   'keras-team/keras-contrib/master/CODEOWNERS')
 
@@ -29,15 +33,31 @@ def parse_codeowners():
     return map_path_owner
 
 
-def send_message(pull_request, owner, files_changed):
+def send_message(pull_request, owner, files_changed, additions):
     message = """Hello, I'm a bot! I can make mistakes, notify gabrieldemarmiesse if I made one.
 
 I see that you modified the following file{plural}: 
 {files_changed}
 
 The owner of those file is @{owner}
+"""
 
-@{owner} could you please take a look at it whenever 
+    absKeys = list(additions['absolute'].keys())[:10]
+    relKeys = list(additions['relative'].keys())[:10]
+
+    absolute = "The following files should not contain relative imports\n"
+    for file in range(len(absKeys)):
+        absolute += absKeys[file] + "\n"
+    absolute += ("\nThis is " + str(file+1) + " out of " + len(additions['absolute']) + " files with relative imports to be changed\n")
+
+    relative = "The following files should not contain absolute imports\n"
+    for file in range(len(relKeys)):
+        relative += relKeys[file] + "\n"
+    relative += ("\nThis is " + str(file+1) + " out of " + " files with absolute imports to be changed\n")
+    
+    message += (absolute + "\n" + relative + "\n")
+    
+    message+="""@{owner} could you please take a look at it whenever 
 you have the time and add a review? Thank you in advance for the help.
 """
 
@@ -78,6 +98,19 @@ def examine_single_pull_request(pull_request, map_path_owner):
         # let's not notify multiple people, otherwise it's going to turn into
         # a mess for big PRs with multiple files.
         return
+    cmd = "git clone --single-branch --branch master git@github.com:" + pull_request.user.login + "/" + repo_id + ".git"
+
+    os.system(cmd)
+    
+    absoluteOnly = importTester.checkImports("./" + repo_id + "/keras", "abs")
+    relativeOnly = importTester.checkImports("./" + repo_id + "/tests", "rel")
+    
+    shutil.rmtree(repo_id)
+    
+    additions = {}
+    additions['relative'] = relativeOnly
+    additions['absolute'] = absoluteOnly
+    
 
     # let's avoid sending a message if we already sent one.
     if already_notified_owner(pull_request):
@@ -85,7 +118,7 @@ def examine_single_pull_request(pull_request, map_path_owner):
     if owners_to_notify:
         owner_to_notify = owners_to_notify[0][1]
         files_changed = [x[0] for x in owners_to_notify]
-        send_message(pull_request, owner_to_notify, files_changed)
+        send_message(pull_request, owner_to_notify, files_changed, additions)
 
 
 def examine_pull_requests():
