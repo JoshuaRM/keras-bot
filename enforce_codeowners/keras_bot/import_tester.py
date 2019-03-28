@@ -35,6 +35,10 @@ def check_absolute(file):
                 #Check if module is an ignored library
                 if module_split[0] in ignore:
                     pass 
+                else:
+                    string = str(file) + " contains an absolute import on line " + str(lineno)
+                    errs.append(string)
+                    
 
             #ImportFrom
             elif split_line[0] == 'from' and len(split_line) >= 3:
@@ -43,12 +47,14 @@ def check_absolute(file):
                     pass
                 #Check if import is absolute or relative
                 elif split_line[1].startswith('.'):
-                    string = str(file) + " contains a relative import on line " + str(lineno)
-                    errs.append(string)
+                    pass
                 else:
                     module_split = split_line[1].split('.')
                     if module_split[0] in ignore:
                         continue
+                    else:
+                        string = str(file) + " contains an absolute import on line " + str(lineno)
+                        errs.append(string)
 
     return errs
 
