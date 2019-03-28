@@ -2,7 +2,7 @@ import os
 
 import github
 
-import importTester
+import import_tester
 
 import shutil
 
@@ -43,19 +43,17 @@ The owner of those file is @{owner}
 """
 
     absKeys = list(additions['absolute'].keys())[:10]
-    relKeys = list(additions['relative'].keys())[:10]
 
-    absolute = "The following files should not contain relative imports\n"
-    for file in range(len(absKeys)):
-        absolute += absKeys[file] + "\n"
-    absolute += ("\nThis is " + str(file+1) + " out of " + len(additions['absolute']) + " files with relative imports to be changed\n")
-
-    relative = "The following files should not contain absolute imports\n"
-    for file in range(len(relKeys)):
-        relative += relKeys[file] + "\n"
-    relative += ("\nThis is " + str(file+1) + " out of " + " files with absolute imports to be changed\n")
+    if absKeys != []:
+        absolute = "The following files should not contain relative imports\n"
+        for file in range(len(absKeys)):
+            absolute += f'<details><summary>{absKeys[file]}</summary>'
+            for err in additions['absolute'][absKeys[file]]:
+                absolute+= err + "</br>"
+            absolute+="</details>"
+        absolute += (f"\nThis is {file+1} out of {len(additions['absolute'])} files with relative imports to be changed\n")
     
-    message += (absolute + "\n" + relative + "\n")
+        message += (absolute + "\n")
     
     message+="""@{owner} could you please take a look at it whenever 
 you have the time and add a review? Thank you in advance for the help.
@@ -102,13 +100,11 @@ def examine_single_pull_request(pull_request, map_path_owner):
 
     os.system(cmd)
     
-    absoluteOnly = importTester.checkImports("./" + repo_id + "/keras", "abs")
-    relativeOnly = importTester.checkImports("./" + repo_id + "/tests", "rel")
+    absoluteOnly = import_tester.check_imports("./" + repo_id + "/keras")
     
     shutil.rmtree(repo_id)
     
     additions = {}
-    additions['relative'] = relativeOnly
     additions['absolute'] = absoluteOnly
     
 
